@@ -56,11 +56,12 @@ static int get_bit(const BloomFilter* filter, size_t index){
     return (filter->bits[byte_index] >> bit_offset) & 1u;
 }
 
+//
+// Implementations
+//
 
-
-int bloom_init(BloomFilter* filter, size_t hash_count, size_t bit_count){
+int bloom_init(BloomFilter* filter, size_t bit_count, size_t hash_count){
     if(filter == NULL || hash_count == 0 || bit_count == 0){
-        fprintf(stderr, "Error Intialising the filter");
         return 0;
     }
 
@@ -73,7 +74,6 @@ int bloom_init(BloomFilter* filter, size_t hash_count, size_t bit_count){
     filter->bits = calloc(byte_count, sizeof(uint8_t));
 
     if(filter->bits == NULL){
-        fprintf(stderr, "Error Intialising the filter");
         return 0;
     }
 
@@ -93,7 +93,7 @@ void bloom_add(BloomFilter* filter, const char* item){
     uint64_t hash1 = hash_1(item);
     uint64_t hash2 = hash_2(item);
 
-    for(size_t i=0; i<filter->bit_count; i++){
+    for(size_t i=0; i<filter->hash_count; i++){
         size_t index = (size_t)((hash1 + (uint64_t) i * hash2) % filter->bit_count);
         set_bit(filter, index);
     }
@@ -101,16 +101,14 @@ void bloom_add(BloomFilter* filter, const char* item){
 
 int bloom_contains(const BloomFilter* filter, const char* item){
     if(filter == NULL || filter->bits == NULL || item == NULL){
-        fprintf(stderr, "Error Checking existence");
         return 0;
     }
 
     uint64_t hash1 = hash_1(item);
     uint64_t hash2 = hash_2(item);
 
-    for(size_t i=0; i<filter->bit_count; i++){
+    for(size_t i=0; i<filter->hash_count; i++){
         size_t index = (size_t)((hash1 + (uint64_t) i * hash2) % filter->bit_count);
-       
         if(!get_bit(filter, index)){
             return 0;
         }
@@ -128,5 +126,4 @@ void bloom_free(BloomFilter* filter){
     filter->bit_count = 0;
     filter->hash_count = 0;
 
-    free(filter);
 }
