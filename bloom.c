@@ -42,6 +42,19 @@ static uint64_t hash_2_bit_shift(const char* str){
     return hash | 1ULL;
 } 
 
+static void set_bit(BloomFilter* filter, size_t index){
+    size_t byte_index = index / 8;
+    size_t bit_offset = index % 8;
+
+    filter->bits[byte_index] |= (uint8_t)(1u << bit_offset);
+}
+
+static int get_bit(const BloomFilter* filter, size_t index){
+    size_t byte_index = index / 8;
+    size_t bit_offset = index % 8;
+
+    return (filter->bits[byte_index] >> bit_offset) & 1u;
+}
 
 
 
