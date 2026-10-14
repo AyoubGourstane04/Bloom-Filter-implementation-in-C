@@ -3,6 +3,9 @@
 #include<stdlib.h>
 #include<string.h>
 
+//
+//  Helper functions
+//
 
 // Hash 1 implementing FNV-1a
 static uint64_t hash_1(const char* str){
@@ -40,9 +43,32 @@ static uint64_t hash_2_bit_shift(const char* str){
 } 
 
 
+
+
 int bloom_init(BloomFilter* filter, size_t hash_count, size_t bit_count){
-    
+    if(filter == NULL || hash_count == 0 || bit_count == 0){
+        return 0;
+    }
+
+    filter->bits = NULL;
+    filter->bit_count = 0;
+    filter->hash_count = 0;
+
+    size_t byte_count = bit_count / 8 + (bit_count % 8 != 0);
+
+    filter->bits = calloc(byte_count, sizeof(uint8_t));
+
+    if(filter->bits == NULL){
+        return 0;
+    }
+
+    filter->bit_count = bit_count;
+    filter->hash_count = hash_count;
+
+    return 1;
+
 }
+
 
 
 
